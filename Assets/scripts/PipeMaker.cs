@@ -13,14 +13,20 @@ public class PipeMaker : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-	    for(int i = 0; i < numPipes; i++)
+        generatePipes();
+	}
+
+    [BitStrap.Button]
+    void generatePipes()
+    {
+        for (int i = 0; i < numPipes; i++)
         {
-            Vector3 pipePos = new Vector3(Random.Range(-pLimits.x, pLimits.x), 
+            Vector3 pipePos = new Vector3(Random.Range(-pLimits.x, pLimits.x),
                 Random.Range(-pLimits.y, pLimits.y), Random.Range(-pLimits.z, pLimits.z));
             Quaternion pipeRot = Random.rotation;
             Transform pipeParent = new GameObject().transform;
             Color color = Random.ColorHSV();
-            for(int j = 0; j < pipeIterations; j++)
+            for (int j = 0; j < pipeIterations; j++)
             {
                 GameObject pipe = GameObject.Instantiate(pipeSegment);
                 pipe.transform.parent = pipeParent;
@@ -32,7 +38,7 @@ public class PipeMaker : MonoBehaviour {
                 pipeRot = Random.rotation;
             }
         }
-	}
+    }
 	
 	// Update is called once per frame
 	void Update () {
