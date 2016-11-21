@@ -35,7 +35,7 @@ public class PipeMaker : MonoBehaviour {
                 pipe.transform.localScale = new Vector3(1, len, 1);
                 pipe.transform.rotation = pipeRot;
                 pipePos = pipePos + pipeRot * transform.up * len;
-                pipeRot = Random.rotation;
+                pipeRot = pipeRot * Quaternion.Euler(90, 0, Random.Range(0, 360));
             }
         }
     }
