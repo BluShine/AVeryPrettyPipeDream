@@ -61,11 +61,18 @@ public class PipeMaker : MonoBehaviour {
         Mesh m = new Mesh();
         List<Vector3> verts = new List<Vector3>();
         List<int> tris = new List<int>();
+        List<Color> colors = new List<Color>();
 
         addBentTube(verts, tris, RADIUS, JOINTSIZE, 5);//bend
 
+        for (int i = 0; i < verts.Count; i++)
+        {
+            colors.Add(Random.ColorHSV(0, 1, .5f, 1, 1, 1));
+        }
+
         m.SetVertices(verts);
         m.triangles = tris.ToArray();
+        m.SetColors(colors);
         m.RecalculateNormals();
         return m;
     }
@@ -75,6 +82,7 @@ public class PipeMaker : MonoBehaviour {
         Mesh m = new Mesh();
         List<Vector3> verts = new List<Vector3>();
         List<int> tris = new List<int>();
+        List<Color> colors = new List<Color>();
 
         addTube(verts, tris, 0, length - FLANGELENGTH, RADIUS);//tube segment
 
@@ -86,8 +94,14 @@ public class PipeMaker : MonoBehaviour {
         addDisc(verts, tris, length - FLANGELENGTH, RADIUS + FLANGEWIDTH, false);//flange
         addDisc(verts, tris, FLANGELENGTH, RADIUS + FLANGEWIDTH, true);//flange
 
+        for(int i = 0; i < verts.Count; i++)
+        {
+            colors.Add(Random.ColorHSV(0, 1, .5f, 1, 1, 1));
+        }
+
         m.SetVertices(verts);
         m.triangles = tris.ToArray();
+        m.SetColors(colors);
         m.RecalculateNormals();
         return m;
     }
@@ -173,7 +187,7 @@ public class PipeMaker : MonoBehaviour {
         verts.Add(new Vector3(0, y, 0));//center
         verts.Add(new Vector3(rad, y, 0));//start
 
-        for (int i = 1; i < RADIALSEGMENTS + 1; i++)
+        for (int i = 1; i < RADIALSEGMENTS; i++)
         {
             float r = ((float)i / (float)RADIALSEGMENTS) * Mathf.PI * 2;
             float x = Mathf.Cos(r) * rad;
@@ -189,6 +203,17 @@ public class PipeMaker : MonoBehaviour {
                 tris.Add(verts.Count - 2);
                 tris.Add(verts.Count - 1);
             }
+        }
+
+        tris.Add(start);
+        if (faceUp)
+        {
+            tris.Add(start + 1);
+            tris.Add(verts.Count - 1);
+        } else
+        {
+            tris.Add(verts.Count - 1);
+            tris.Add(start + 1);
         }
     }
 	
