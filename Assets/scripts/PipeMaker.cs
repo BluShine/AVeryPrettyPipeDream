@@ -94,11 +94,10 @@ public class PipeMaker : MonoBehaviour {
 
     void addBentTube(List<Vector3> verts, List<int> tris, float rad, float length, int segments)
     {
-        int start = verts.Count;
         Vector3 offset = new Vector3(length, 0, 0);
         //starting ring of verts
         verts.Add(offset + new Vector3(rad, 0, 0));
-        for (int j = 1; j < RADIALSEGMENTS + 1; j++)
+        for (int j = 1; j < RADIALSEGMENTS; j++)
         {
             float r = ((float)j / (float)RADIALSEGMENTS) * Mathf.PI * 2;
             verts.Add(offset + new Vector3(rad * Mathf.Cos(r), 0, rad * Mathf.Sin(r)));
@@ -109,28 +108,39 @@ public class PipeMaker : MonoBehaviour {
             float segRatio = (float)i / (float)segments;
             Quaternion tubeRotation = Quaternion.Euler(0, 0, segRatio * 90);
             verts.Add(tubeRotation * (offset + new Vector3(rad, 0, 0)));
-            for(int j = 1; j < RADIALSEGMENTS + 1; j++)
+            for(int j = 1; j < RADIALSEGMENTS; j++)
             {
                 float r = ((float)j / (float)RADIALSEGMENTS) * Mathf.PI * 2;
                 verts.Add(tubeRotation * (offset + new Vector3(rad * Mathf.Cos(r), 0, rad * Mathf.Sin(r))));
                 //tri 1
                 tris.Add(verts.Count - 2);
                 tris.Add(verts.Count - 1);
-                tris.Add(verts.Count - 2 - RADIALSEGMENTS);
+                tris.Add(verts.Count - 1 - RADIALSEGMENTS);
                 //tri 2
                 tris.Add(verts.Count - 2);
+                tris.Add(verts.Count - 1 - RADIALSEGMENTS);
                 tris.Add(verts.Count - 2 - RADIALSEGMENTS);
-                tris.Add(verts.Count - 3 - RADIALSEGMENTS);
             }
+            //last segment
+            //tri 1
+            tris.Add(verts.Count - RADIALSEGMENTS);
+            tris.Add(verts.Count - RADIALSEGMENTS - RADIALSEGMENTS);
+            tris.Add(verts.Count - 1 - RADIALSEGMENTS);
+            //tri 2
+            tris.Add(verts.Count - 1);
+            tris.Add(verts.Count - RADIALSEGMENTS);
+            tris.Add(verts.Count - 1 - RADIALSEGMENTS);
         }
     }
 
     void addTube(List<Vector3> verts, List<int> tris, float bottom, float top, float rad)
     {
+        //starting verts
+        int start = verts.Count;
         verts.Add(new Vector3(rad, bottom, 0));//first bottom
         verts.Add(new Vector3(rad, top, 0));//first top
-
-        for (int i = 1; i < RADIALSEGMENTS + 1; i++)
+        //build tube
+        for (int i = 1; i < RADIALSEGMENTS; i++)
         {
             float r = ((float)i / (float)RADIALSEGMENTS) * Mathf.PI * 2;
             float x = Mathf.Cos(r) * rad;
@@ -146,6 +156,15 @@ public class PipeMaker : MonoBehaviour {
             tris.Add(verts.Count - 1);
             tris.Add(verts.Count - 2);
         }
+        //last segment
+        //side 1
+        tris.Add(verts.Count - 2);
+        tris.Add(start + 1);
+        tris.Add(start);
+        //side 2
+        tris.Add(start + 1);
+        tris.Add(verts.Count - 2);
+        tris.Add(verts.Count - 1);
     }
 
     void addDisc(List<Vector3> verts, List<int> tris, float y, float rad, bool faceUp)
