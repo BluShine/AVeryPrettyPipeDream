@@ -27,18 +27,19 @@ public class PipeMaker : MonoBehaviour {
     {
         for (int i = 0; i < numPipes; i++)
         {
+            Color tubeCol = randBrightColor();
+            Color flangeCol = randBrightColor();
             Vector3 pipePos = new Vector3(Random.Range(-pLimits.x, pLimits.x),
                 Random.Range(-pLimits.y, pLimits.y), Random.Range(-pLimits.z, pLimits.z));
             Quaternion pipeRot = Random.rotation;
             Transform pipeParent = new GameObject().transform;
-            Color color = Random.ColorHSV();
             for (int j = 0; j < pipeIterations; j++)
             {
                 GameObject pipe = GameObject.Instantiate(pipeSegment);
                 pipe.transform.parent = pipeParent;
                 pipe.transform.position = pipePos;
                 float len = Random.Range(1, pipeLength);
-                pipe.GetComponent<MeshFilter>().mesh = makePipe(len);
+                pipe.GetComponent<MeshFilter>().mesh = makePipe(len, tubeCol, flangeCol);
                 pipe.transform.rotation = pipeRot;
                 if (j != pipeIterations - 1)
                 {
@@ -48,7 +49,7 @@ public class PipeMaker : MonoBehaviour {
                     GameObject joint = GameObject.Instantiate(pipeSegment);
                     joint.transform.parent = pipe.transform;
                     joint.transform.position = pipePos + pipeRot * new Vector3(0, JOINTSIZE, JOINTSIZE);
-                    joint.GetComponent<MeshFilter>().mesh = makeJoint();
+                    joint.GetComponent<MeshFilter>().mesh = makeJoint(tubeCol, tubeCol);
                     joint.transform.rotation = pipeRot * Quaternion.Euler(180, 90, 0);
                     pipePos = pipePos + pipeRot * transform.up * JOINTSIZE;
                 }
@@ -56,19 +57,14 @@ public class PipeMaker : MonoBehaviour {
         }
     }
 
-    Mesh makeJoint()
+    Mesh makeJoint(Color col1, Color col2)
     {
         Mesh m = new Mesh();
         List<Vector3> verts = new List<Vector3>();
         List<int> tris = new List<int>();
         List<Color> colors = new List<Color>();
 
-        addBentTube(verts, tris, RADIUS, JOINTSIZE, 5);//bend
-
-        for (int i = 0; i < verts.Count; i++)
-        {
-            colors.Add(Random.ColorHSV(0, 1, .5f, 1, 1, 1));
-        }
+        addBentTube(verts, tris, colors, RADIUS, JOINTSIZE, 5, col1, col2);//bend
 
         m.SetVertices(verts);
         m.triangles = tris.ToArray();
@@ -77,27 +73,27 @@ public class PipeMaker : MonoBehaviour {
         return m;
     }
 
-    Mesh makePipe(float length)
+    Color randBrightColor()
+    {
+        return Random.ColorHSV(0, 1, .5f, 1, 1, 1);
+    }
+
+    Mesh makePipe(float length, Color tubeColor, Color flangeColor)
     {
         Mesh m = new Mesh();
         List<Vector3> verts = new List<Vector3>();
         List<int> tris = new List<int>();
         List<Color> colors = new List<Color>();
 
-        addTube(verts, tris, 0, length - FLANGELENGTH, RADIUS);//tube segment
+        addTube(verts, tris, colors, 0, length - FLANGELENGTH, RADIUS, tubeColor, tubeColor);//tube segment
 
-        addTube(verts, tris, length - FLANGELENGTH, length, RADIUS + FLANGEWIDTH);//flange
-        addTube(verts, tris, 0, FLANGELENGTH, RADIUS + FLANGEWIDTH);//flange
+        addTube(verts, tris, colors, length - FLANGELENGTH, length, RADIUS + FLANGEWIDTH, flangeColor, flangeColor);//flange
+        addTube(verts, tris, colors, 0, FLANGELENGTH, RADIUS + FLANGEWIDTH, flangeColor, flangeColor);//flange
 
-        addDisc(verts, tris, 0, RADIUS + FLANGEWIDTH, false);//bottom
-        addDisc(verts, tris, length, RADIUS + FLANGEWIDTH, true);//top
-        addDisc(verts, tris, length - FLANGELENGTH, RADIUS + FLANGEWIDTH, false);//flange
-        addDisc(verts, tris, FLANGELENGTH, RADIUS + FLANGEWIDTH, true);//flange
-
-        for(int i = 0; i < verts.Count; i++)
-        {
-            colors.Add(Random.ColorHSV(0, 1, .5f, 1, 1, 1));
-        }
+        addDisc(verts, tris, colors, 0, RADIUS + FLANGEWIDTH, false, flangeColor, flangeColor);//bottom
+        addDisc(verts, tris, colors, length, RADIUS + FLANGEWIDTH, true, flangeColor, flangeColor);//top
+        addDisc(verts, tris, colors, length - FLANGELENGTH, RADIUS + FLANGEWIDTH, false, flangeColor, flangeColor);//bottom flange inner edge
+        addDisc(verts, tris, colors, FLANGELENGTH, RADIUS + FLANGEWIDTH, true, flangeColor, flangeColor);//top flange flange inner edge
 
         m.SetVertices(verts);
         m.triangles = tris.ToArray();
@@ -106,15 +102,17 @@ public class PipeMaker : MonoBehaviour {
         return m;
     }
 
-    void addBentTube(List<Vector3> verts, List<int> tris, float rad, float length, int segments)
+    void addBentTube(List<Vector3> verts, List<int> tris, List<Color> colors, float rad, float length, int segments, Color startCol, Color endCol)
     {
         Vector3 offset = new Vector3(length, 0, 0);
         //starting ring of verts
         verts.Add(offset + new Vector3(rad, 0, 0));
+        colors.Add(startCol);
         for (int j = 1; j < RADIALSEGMENTS; j++)
         {
             float r = ((float)j / (float)RADIALSEGMENTS) * Mathf.PI * 2;
             verts.Add(offset + new Vector3(rad * Mathf.Cos(r), 0, rad * Mathf.Sin(r)));
+            colors.Add(startCol);
         }
 
         for(int i = 1; i < segments + 1; i++)
@@ -122,10 +120,12 @@ public class PipeMaker : MonoBehaviour {
             float segRatio = (float)i / (float)segments;
             Quaternion tubeRotation = Quaternion.Euler(0, 0, segRatio * 90);
             verts.Add(tubeRotation * (offset + new Vector3(rad, 0, 0)));
-            for(int j = 1; j < RADIALSEGMENTS; j++)
+            colors.Add(Color.Lerp(startCol, endCol, segRatio));
+            for (int j = 1; j < RADIALSEGMENTS; j++)
             {
                 float r = ((float)j / (float)RADIALSEGMENTS) * Mathf.PI * 2;
                 verts.Add(tubeRotation * (offset + new Vector3(rad * Mathf.Cos(r), 0, rad * Mathf.Sin(r))));
+                colors.Add(Color.Lerp(startCol, endCol, segRatio));
                 //tri 1
                 tris.Add(verts.Count - 2);
                 tris.Add(verts.Count - 1);
@@ -147,12 +147,14 @@ public class PipeMaker : MonoBehaviour {
         }
     }
 
-    void addTube(List<Vector3> verts, List<int> tris, float bottom, float top, float rad)
+    void addTube(List<Vector3> verts, List<int> tris, List<Color> colors, float bottom, float top, float rad, Color bottomCol, Color topCol)
     {
         //starting verts
         int start = verts.Count;
         verts.Add(new Vector3(rad, bottom, 0));//first bottom
+        colors.Add(bottomCol);
         verts.Add(new Vector3(rad, top, 0));//first top
+        colors.Add(topCol);
         //build tube
         for (int i = 1; i < RADIALSEGMENTS; i++)
         {
@@ -160,7 +162,9 @@ public class PipeMaker : MonoBehaviour {
             float x = Mathf.Cos(r) * rad;
             float z = Mathf.Sin(r) * rad;
             verts.Add(new Vector3(x, bottom, z));
+            colors.Add(bottomCol);
             verts.Add(new Vector3(x, top, z));
+            colors.Add(topCol);
             //side 1
             tris.Add(verts.Count - 2);
             tris.Add(verts.Count - 4);
@@ -181,11 +185,13 @@ public class PipeMaker : MonoBehaviour {
         tris.Add(verts.Count - 1);
     }
 
-    void addDisc(List<Vector3> verts, List<int> tris, float y, float rad, bool faceUp)
+    void addDisc(List<Vector3> verts, List<int> tris, List<Color> colors, float y, float rad, bool faceUp, Color centerCol, Color edgeCol)
     {
         int start = verts.Count;
         verts.Add(new Vector3(0, y, 0));//center
+        colors.Add(centerCol);
         verts.Add(new Vector3(rad, y, 0));//start
+        colors.Add(edgeCol);
 
         for (int i = 1; i < RADIALSEGMENTS; i++)
         {
@@ -193,6 +199,7 @@ public class PipeMaker : MonoBehaviour {
             float x = Mathf.Cos(r) * rad;
             float z = Mathf.Sin(r) * rad;
             verts.Add(new Vector3(x, y, z));
+            colors.Add(edgeCol);
             tris.Add(start);
             if (faceUp)
             {
