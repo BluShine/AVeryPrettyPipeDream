@@ -15,12 +15,73 @@ public class PipeMaker : MonoBehaviour {
     public float pipeLength = 10;
     public float pipeIterations = 10;
 
+    public float layerScale = 20;
+    public float layerDistribution = 2;
+    public float outerLayerIterations = 3;
+    public float layerRangeInner = .7f;
+    public float layerRangeOuter = 2;
+
+    public int pipeLayers = 3;
+
     public Vector3 pLimits = new Vector3(100, 100, 100);
 
 	// Use this for initialization
 	void Start () {
         generatePipes();
-	}
+        generateOuterPipeLayers();
+    }
+
+    [BitStrap.Button]
+    void generateOuterPipeLayers()
+    {
+        float scale = layerScale;
+        float distribution = numPipes * layerDistribution;
+        float innerRange = pLimits.x * layerRangeInner;
+        float outerRange = pLimits.x * layerRangeOuter;
+        for(int i = 0; i < pipeLayers; i++)
+        {
+            generatePipeLayer(scale, distribution, innerRange, outerRange);
+            scale = scale * layerScale;
+            distribution = numPipes * layerDistribution;
+            innerRange = outerRange * layerRangeInner;
+            outerRange = outerRange * layerRangeOuter;
+        }
+    }
+
+    void generatePipeLayer(float scale, float num, float inner, float outer)
+    {
+        for (int i = 0; i < num; i++)
+        {
+            Color tubeCol = randBrightColor();
+            Color flangeCol = randBrightColor();
+            Vector3 pipePos = Random.onUnitSphere * Random.Range(inner, outer);
+            Quaternion pipeRot = Quaternion.FromToRotation(Vector3.up, pipePos.normalized) * Quaternion.Euler(Random.Range(-90, 90), Random.Range(-90, 90), Random.Range(-90, 90));
+            Transform pipeParent = new GameObject().transform;
+            pipeParent.transform.position = pipePos;
+            for (int j = 0; j < outerLayerIterations; j++)
+            {
+                GameObject pipe = GameObject.Instantiate(pipeSegment);
+                pipe.transform.parent = pipeParent;
+                pipe.transform.position = pipePos;
+                float len = Random.Range(1, pipeLength);
+                pipe.GetComponent<MeshFilter>().mesh = makePipe(len, tubeCol, flangeCol);
+                pipe.transform.rotation = pipeRot;
+                if (j != outerLayerIterations - 1)
+                {
+                    //generate joint
+                    pipePos = pipePos + pipeRot * transform.up * (len + JOINTSIZE);
+                    pipeRot = pipeRot * Quaternion.Euler(90, 0, Random.Range(0, 360));
+                    GameObject joint = GameObject.Instantiate(pipeSegment);
+                    joint.transform.parent = pipe.transform;
+                    joint.transform.position = pipePos + pipeRot * new Vector3(0, JOINTSIZE, JOINTSIZE);
+                    joint.GetComponent<MeshFilter>().mesh = makeJoint(tubeCol, tubeCol);
+                    joint.transform.rotation = pipeRot * Quaternion.Euler(180, 90, 0);
+                    pipePos = pipePos + pipeRot * transform.up * JOINTSIZE;
+                }
+            }
+            pipeParent.localScale = new Vector3(scale, scale, scale);
+        }
+    }
 
     [BitStrap.Button]
     void generatePipes()
@@ -33,6 +94,7 @@ public class PipeMaker : MonoBehaviour {
                 Random.Range(-pLimits.y, pLimits.y), Random.Range(-pLimits.z, pLimits.z));
             Quaternion pipeRot = Random.rotation;
             Transform pipeParent = new GameObject().transform;
+            pipeParent.transform.position = pipePos;
             for (int j = 0; j < pipeIterations; j++)
             {
                 GameObject pipe = GameObject.Instantiate(pipeSegment);
