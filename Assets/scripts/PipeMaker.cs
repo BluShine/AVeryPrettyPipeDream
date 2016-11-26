@@ -4,7 +4,7 @@ using System.Collections.Generic;
 public class PipeMaker : MonoBehaviour {
 
     static float RADIUS = .5f;
-    static int RADIALSEGMENTS = 10;
+    static int RADIALSEGMENTS = 20;
     static float JOINTSIZE = 1;
     static float FLANGEWIDTH = .2f;
     static float FLANGELENGTH = .4f;
