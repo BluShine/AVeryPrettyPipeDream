@@ -50,6 +50,8 @@ public class PipeMaker : MonoBehaviour {
 
     void generatePipeLayer(float scale, float num, float inner, float outer)
     {
+        Transform layerParent = new GameObject().transform;
+        layerParent.name = "layer " + scale;
         for (int i = 0; i < num; i++)
         {
             Color tubeCol = randBrightColor();
@@ -57,6 +59,8 @@ public class PipeMaker : MonoBehaviour {
             Vector3 pipePos = Random.onUnitSphere * Random.Range(inner, outer);
             Quaternion pipeRot = Quaternion.FromToRotation(Vector3.up, pipePos.normalized) * Quaternion.Euler(Random.Range(-90, 90), Random.Range(-90, 90), Random.Range(-90, 90));
             Transform pipeParent = new GameObject().transform;
+            pipeParent.parent = layerParent;
+            pipeParent.name = "pipe";
             pipeParent.transform.position = pipePos;
             for (int j = 0; j < outerLayerIterations; j++)
             {
@@ -86,6 +90,8 @@ public class PipeMaker : MonoBehaviour {
     [BitStrap.Button]
     void generatePipes()
     {
+        Transform groupParent = new GameObject().transform;
+        groupParent.name = "pipe group";
         for (int i = 0; i < numPipes; i++)
         {
             Color tubeCol = randBrightColor();
@@ -94,6 +100,8 @@ public class PipeMaker : MonoBehaviour {
                 Random.Range(-pLimits.y, pLimits.y), Random.Range(-pLimits.z, pLimits.z));
             Quaternion pipeRot = Random.rotation;
             Transform pipeParent = new GameObject().transform;
+            pipeParent.name = "pipe";
+            pipeParent.parent = groupParent;
             pipeParent.transform.position = pipePos;
             for (int j = 0; j < pipeIterations; j++)
             {
