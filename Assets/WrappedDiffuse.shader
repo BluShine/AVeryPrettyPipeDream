@@ -7,6 +7,7 @@
 		_SpecColor("Specular Color", Color) = (1, 1, 1, 1)
 		_RimPower("Rim Light", Range(0, 10)) = 3
 		_RimColor("Rim Color", Color) = (1, 1, 1, 1)
+		_ColorRamp("Color Ramp", 2D) = "gray" {}
 	}
 	SubShader {
 		Tags { "RenderType"="Opaque" }
@@ -22,15 +23,21 @@
 		half4 _SpecularColor;
 		half _RimPower;
 		half4 _RimColor;
+		sampler2D _ColorRamp;
 
 		half4 LightingWrapLambert(SurfaceOutput s, half3 viewDir, UnityGI gi) {
 			half3 h = normalize(gi.light.dir + viewDir);
 
+			//half lambert
 			fixed diff = max(0, pow(dot(s.Normal, gi.light.dir) * _Scale + _Bias, _Exponent));
+			//color ramp
+			diff = tex2D(_ColorRamp, float2(diff, 0));
 
+			//specular highlight
 			float nh = max(0, dot(s.Normal, h));
 			float spec = pow(nh, _Specular*128.0);
 
+			//rim light
 			half rim = 1 - saturate(dot(normalize(viewDir), s.Normal));
 
 			fixed4 c;
