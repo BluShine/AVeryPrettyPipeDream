@@ -25,6 +25,8 @@ public class PipeMaker : MonoBehaviour {
 
     public Vector3 pLimits = new Vector3(100, 100, 100);
 
+    public bool generateColliders = false;
+
 	// Use this for initialization
 	void Start () {
         generatePipes();
@@ -68,6 +70,13 @@ public class PipeMaker : MonoBehaviour {
                 pipe.transform.parent = pipeParent;
                 pipe.transform.position = pipePos;
                 float len = Random.Range(1, pipeLength);
+                if(generateColliders)
+                {
+                    CapsuleCollider capsule = pipe.AddComponent<CapsuleCollider>();
+                    capsule.radius = RADIUS;
+                    capsule.height = len;
+                    capsule.center = new Vector3(capsule.center.x, len / 2, capsule.center.z);
+                }
                 pipe.GetComponent<MeshFilter>().mesh = makePipe(len, tubeCol, flangeCol);
                 pipe.transform.rotation = pipeRot;
                 if (j != outerLayerIterations - 1)
@@ -81,6 +90,12 @@ public class PipeMaker : MonoBehaviour {
                     joint.GetComponent<MeshFilter>().mesh = makeJoint(tubeCol, tubeCol);
                     joint.transform.rotation = pipeRot * Quaternion.Euler(180, 90, 0);
                     pipePos = pipePos + pipeRot * transform.up * JOINTSIZE;
+                    if (generateColliders)
+                    {
+                        MeshCollider coll = joint.AddComponent<MeshCollider>();
+                        coll.sharedMesh = joint.GetComponent<MeshFilter>().mesh;
+                        coll.convex = true;
+                    }
                 }
             }
             pipeParent.localScale = new Vector3(scale, scale, scale);
@@ -109,6 +124,13 @@ public class PipeMaker : MonoBehaviour {
                 pipe.transform.parent = pipeParent;
                 pipe.transform.position = pipePos;
                 float len = Random.Range(1, pipeLength);
+                if (generateColliders)
+                {
+                    CapsuleCollider capsule = pipe.AddComponent<CapsuleCollider>();
+                    capsule.radius = RADIUS;
+                    capsule.height = len;
+                    capsule.center = new Vector3(capsule.center.x, len / 2, capsule.center.z);
+                }
                 pipe.GetComponent<MeshFilter>().mesh = makePipe(len, tubeCol, flangeCol);
                 pipe.transform.rotation = pipeRot;
                 if (j != pipeIterations - 1)
