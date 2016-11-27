@@ -12,7 +12,8 @@ public class PhotoStorage : MonoBehaviour
 
     public void Start()
     {
-        photos = new List<Texture2D>();
+        if(photos == null)
+            photos = new List<Texture2D>();
         newPhoto = false;
         DontDestroyOnLoad(this.gameObject);
     }
