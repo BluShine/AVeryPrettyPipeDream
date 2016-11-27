@@ -144,6 +144,12 @@ public class PipeMaker : MonoBehaviour {
                     joint.GetComponent<MeshFilter>().mesh = makeJoint(tubeCol, tubeCol);
                     joint.transform.rotation = pipeRot * Quaternion.Euler(180, 90, 0);
                     pipePos = pipePos + pipeRot * transform.up * JOINTSIZE;
+                    if (generateColliders)
+                    {
+                        MeshCollider coll = joint.AddComponent<MeshCollider>();
+                        coll.sharedMesh = joint.GetComponent<MeshFilter>().mesh;
+                        coll.convex = true;
+                    }
                 }
             }
         }

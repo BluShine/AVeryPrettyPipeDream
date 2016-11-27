@@ -8,31 +8,28 @@ public class FlyCam : MonoBehaviour
     static string fAxis = "Vertical";
     static string hAxis = "Horizontal";
 
-    Vector3 inertia;
-
     void Start()
     {
-        inertia = Vector3.zero;
+
     }
 
     void FixedUpdate()
     {
+        Rigidbody body = GetComponent<Rigidbody>();
         Vector3 inputVec = transform.forward * Input.GetAxis(fAxis) + transform.right * Input.GetAxis(hAxis);
-        inertia += inputVec * moveAccel * Time.fixedDeltaTime;
+        body.velocity += inputVec * moveAccel * Time.fixedDeltaTime;
         //drag
-        if (inertia.magnitude < drag * Time.fixedDeltaTime)
+        if (body.velocity.magnitude < drag * Time.fixedDeltaTime)
         {
-            inertia = Vector3.zero;
+            body.velocity = Vector3.zero;
         } else
         {
-            inertia = inertia - inertia.normalized * drag * Time.fixedDeltaTime;
+            body.velocity = body.velocity - body.velocity.normalized * drag * Time.fixedDeltaTime;
         }
         //max speed
-        if(inertia.magnitude > maxSpeed)
+        if(body.velocity.magnitude > maxSpeed)
         {
-            inertia = inertia.normalized * maxSpeed;
+            body.velocity = body.velocity.normalized * maxSpeed;
         }
-
-        transform.position = transform.position + inertia;
     }
 }
