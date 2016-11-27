@@ -14,14 +14,15 @@ public class PhotoStorage : MonoBehaviour
     {
         photos = new List<Texture2D>();
         newPhoto = false;
+        DontDestroyOnLoad(this.gameObject);
     }
 
     public void Update()
     {
-        if(newPhoto)
+        /*if(newPhoto)
         {
             addPhoto(photos[photos.Count - 1]);
-        }
+        }*/
     }
 
     void addPhoto(Texture2D texture)
