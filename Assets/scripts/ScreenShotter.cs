@@ -59,6 +59,7 @@ public class ScreenShotter : MonoBehaviour
 
 
         //Release memory 
-        //DestroyObject(texture); no, actually, we want to save this.
+        //DestroyObject(texture); just kidding
+        storage.newPhoto = true;
     }
 }
