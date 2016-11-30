@@ -9,8 +9,12 @@ using System.IO;
 public class ScreenShotter : MonoBehaviour
 {
 
-    public int width = Screen.width;
-    public int height = Screen.height;
+    int width = Screen.width;
+    int height = Screen.height;
+    int offsetX = 0;
+    int offsetY = 0;
+
+    public float aspectRatio = 1f/1f; //width / height
 
     public PhotoStorage storage;
 
@@ -18,6 +22,17 @@ public class ScreenShotter : MonoBehaviour
     {
         width = Screen.width;
         height = Screen.height;
+        if(width > height * aspectRatio)
+        {
+            //screen is too wide 
+            offsetX = Mathf.FloorToInt((width - height * aspectRatio) / 2);
+            width = Mathf.FloorToInt(height * aspectRatio);
+        } else if(width < height * aspectRatio)
+        {
+            //screen is too narrow
+            offsetY = Mathf.FloorToInt((height - width * (1f / aspectRatio)) / 2);
+            height = Mathf.FloorToInt(width * (1f / aspectRatio));
+        }
     }
 
     void LateUpdate()
@@ -41,7 +56,7 @@ public class ScreenShotter : MonoBehaviour
 
         // put buffer into texture
 
-        texture.ReadPixels(new Rect(0, 0, width, height), 0, 0);
+        texture.ReadPixels(new Rect(offsetX, offsetY, width, height), 0, 0);
         texture.Apply();
 
         // split the process up--ReadPixels() and the GetPixels()
