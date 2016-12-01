@@ -13,11 +13,11 @@ public class PipeMaker : MonoBehaviour {
 
     public int numPipes = 10;
     public float pipeLength = 10;
-    public float pipeIterations = 10;
+    public int pipeIterations = 10;
 
     public float layerScale = 20;
     public float layerDistribution = 2;
-    public float outerLayerIterations = 3;
+    public int outerLayerIterations = 3;
     public float layerRangeInner = .7f;
     public float layerRangeOuter = 2;
 
@@ -26,6 +26,8 @@ public class PipeMaker : MonoBehaviour {
     public Vector3 pLimits = new Vector3(100, 100, 100);
 
     public bool generateColliders = false;
+
+    int pipeIDCounter = 0;
 
 	// Use this for initialization
 	void Start () {
@@ -56,50 +58,70 @@ public class PipeMaker : MonoBehaviour {
         layerParent.name = "layer " + scale;
         for (int i = 0; i < num; i++)
         {
-            Color tubeCol = randBrightColor();
-            Color flangeCol = randBrightColor();
-            Vector3 pipePos = Random.onUnitSphere * Random.Range(inner, outer);
-            Quaternion pipeRot = Quaternion.FromToRotation(Vector3.up, pipePos.normalized) * Quaternion.Euler(Random.Range(-90, 90), Random.Range(-90, 90), Random.Range(-90, 90));
-            Transform pipeParent = new GameObject().transform;
-            pipeParent.parent = layerParent;
-            pipeParent.name = "pipe";
-            pipeParent.transform.position = pipePos;
-            for (int j = 0; j < outerLayerIterations; j++)
-            {
-                GameObject pipe = GameObject.Instantiate(pipeSegment);
-                pipe.transform.parent = pipeParent;
-                pipe.transform.position = pipePos;
-                float len = Random.Range(1, pipeLength);
-                if(generateColliders)
-                {
-                    CapsuleCollider capsule = pipe.AddComponent<CapsuleCollider>();
-                    capsule.radius = RADIUS;
-                    capsule.height = len;
-                    capsule.center = new Vector3(capsule.center.x, len / 2, capsule.center.z);
-                }
-                pipe.GetComponent<MeshFilter>().mesh = makePipe(len, tubeCol, flangeCol);
-                pipe.transform.rotation = pipeRot;
-                if (j != outerLayerIterations - 1)
-                {
-                    //generate joint
-                    pipePos = pipePos + pipeRot * transform.up * (len + JOINTSIZE);
-                    pipeRot = pipeRot * Quaternion.Euler(90, 0, Random.Range(0, 360));
-                    GameObject joint = GameObject.Instantiate(pipeSegment);
-                    joint.transform.parent = pipe.transform;
-                    joint.transform.position = pipePos + pipeRot * new Vector3(0, JOINTSIZE, JOINTSIZE);
-                    joint.GetComponent<MeshFilter>().mesh = makeJoint(tubeCol, tubeCol);
-                    joint.transform.rotation = pipeRot * Quaternion.Euler(180, 90, 0);
-                    pipePos = pipePos + pipeRot * transform.up * JOINTSIZE;
-                    if (generateColliders)
-                    {
-                        MeshCollider coll = joint.AddComponent<MeshCollider>();
-                        coll.sharedMesh = joint.GetComponent<MeshFilter>().mesh;
-                        coll.convex = true;
-                    }
-                }
-            }
-            pipeParent.localScale = new Vector3(scale, scale, scale);
+            Vector3 pos = Random.onUnitSphere * Random.Range(inner, outer);
+            Quaternion rot = Quaternion.FromToRotation(Vector3.up, pos.normalized) * Quaternion.Euler(Random.Range(-90, 90), Random.Range(-90, 90), Random.Range(-90, 90));
+            makePipe(randBrightColor(), randBrightColor(), pos, rot, layerParent, scale, outerLayerIterations);
         }
+    }
+
+    void makePipe(Color tubeCol, Color flangeCol, Vector3 pipePos, Quaternion pipeRot, Transform parent, float scale,
+        int iterations)
+    {
+        Transform pipeParent = new GameObject().transform;
+        pipeParent.parent = parent;
+        pipeParent.name = "pipe";
+        pipeParent.transform.position = pipePos;
+        for (int j = 0; j < iterations; j++)
+        {
+            GameObject pipe = GameObject.Instantiate(pipeSegment);
+            pipe.transform.parent = pipeParent;
+            pipe.transform.position = pipePos;
+            float len = Random.Range(1, pipeLength);
+            if (generateColliders)
+            {
+                CapsuleCollider capsule = pipe.AddComponent<CapsuleCollider>();
+                capsule.radius = RADIUS;
+                capsule.height = len;
+                capsule.center = new Vector3(capsule.center.x, len / 2, capsule.center.z);
+            }
+            pipe.GetComponent<MeshFilter>().mesh = makePipe(len, tubeCol, flangeCol);
+            pipe.transform.rotation = pipeRot;
+            //info
+            PipeInfo info = pipe.AddComponent<PipeInfo>();
+            info.pipeID = pipeIDCounter;
+            info.flangeColor = flangeCol;
+            info.bodyColor = tubeCol;
+            info.scale = scale;
+            info.length = len;
+            //don't generate a joint on the last segment
+            if (j != iterations - 1)
+            {
+                //generate joint
+                pipePos = pipePos + pipeRot * transform.up * (len + JOINTSIZE);
+                pipeRot = pipeRot * Quaternion.Euler(90, 0, Random.Range(0, 360));
+                GameObject joint = GameObject.Instantiate(pipeSegment);
+                joint.transform.parent = pipe.transform;
+                joint.transform.position = pipePos + pipeRot * new Vector3(0, JOINTSIZE, JOINTSIZE);
+                joint.GetComponent<MeshFilter>().mesh = makeJoint(tubeCol, tubeCol);
+                joint.transform.rotation = pipeRot * Quaternion.Euler(180, 90, 0);
+                pipePos = pipePos + pipeRot * transform.up * JOINTSIZE;
+                if (generateColliders)
+                {
+                    MeshCollider coll = joint.AddComponent<MeshCollider>();
+                    coll.sharedMesh = joint.GetComponent<MeshFilter>().mesh;
+                    coll.convex = true;
+                }
+                //info
+                PipeInfo jInfo = joint.AddComponent<PipeInfo>();
+                jInfo.pipeID = pipeIDCounter;
+                jInfo.flangeColor = flangeCol;
+                jInfo.bodyColor = tubeCol;
+                jInfo.scale = scale;
+                jInfo.length = JOINTSIZE;
+            }
+        }
+        pipeParent.localScale = new Vector3(scale, scale, scale);
+        pipeIDCounter++;
     }
 
     [BitStrap.Button]
@@ -109,49 +131,10 @@ public class PipeMaker : MonoBehaviour {
         groupParent.name = "pipe group";
         for (int i = 0; i < numPipes; i++)
         {
-            Color tubeCol = randBrightColor();
-            Color flangeCol = randBrightColor();
-            Vector3 pipePos = new Vector3(Random.Range(-pLimits.x, pLimits.x),
+            Vector3 pos = new Vector3(Random.Range(-pLimits.x, pLimits.x),
                 Random.Range(-pLimits.y, pLimits.y), Random.Range(-pLimits.z, pLimits.z));
-            Quaternion pipeRot = Random.rotation;
-            Transform pipeParent = new GameObject().transform;
-            pipeParent.name = "pipe";
-            pipeParent.parent = groupParent;
-            pipeParent.transform.position = pipePos;
-            for (int j = 0; j < pipeIterations; j++)
-            {
-                GameObject pipe = GameObject.Instantiate(pipeSegment);
-                pipe.transform.parent = pipeParent;
-                pipe.transform.position = pipePos;
-                float len = Random.Range(1, pipeLength);
-                if (generateColliders)
-                {
-                    CapsuleCollider capsule = pipe.AddComponent<CapsuleCollider>();
-                    capsule.radius = RADIUS;
-                    capsule.height = len;
-                    capsule.center = new Vector3(capsule.center.x, len / 2, capsule.center.z);
-                }
-                pipe.GetComponent<MeshFilter>().mesh = makePipe(len, tubeCol, flangeCol);
-                pipe.transform.rotation = pipeRot;
-                if (j != pipeIterations - 1)
-                {
-                    //generate joint
-                    pipePos = pipePos + pipeRot * transform.up * (len + JOINTSIZE);
-                    pipeRot = pipeRot * Quaternion.Euler(90, 0, Random.Range(0, 360));
-                    GameObject joint = GameObject.Instantiate(pipeSegment);
-                    joint.transform.parent = pipe.transform;
-                    joint.transform.position = pipePos + pipeRot * new Vector3(0, JOINTSIZE, JOINTSIZE);
-                    joint.GetComponent<MeshFilter>().mesh = makeJoint(tubeCol, tubeCol);
-                    joint.transform.rotation = pipeRot * Quaternion.Euler(180, 90, 0);
-                    pipePos = pipePos + pipeRot * transform.up * JOINTSIZE;
-                    if (generateColliders)
-                    {
-                        MeshCollider coll = joint.AddComponent<MeshCollider>();
-                        coll.sharedMesh = joint.GetComponent<MeshFilter>().mesh;
-                        coll.convex = true;
-                    }
-                }
-            }
+            Quaternion rot = Random.rotation;
+            makePipe(randBrightColor(), randBrightColor(), pos, rot, groupParent, 1, pipeIterations);
         }
     }
 

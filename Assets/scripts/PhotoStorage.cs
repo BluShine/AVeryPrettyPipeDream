@@ -5,16 +5,18 @@ public class PhotoStorage : MonoBehaviour
 {
     public List<Texture2D> photos;
 
-    public GameObject photoPrefab;
-
-    [HideInInspector]
-    public bool newPhoto = false;
+    public List<PhotoInfo> infos;
 
     public void Start()
     {
-        if(photos == null)
+        if (photos == null)
+        {
             photos = new List<Texture2D>();
-        newPhoto = false;
+        }
+        if(infos == null)
+        {
+            infos = new List<PhotoInfo>();
+        }
         DontDestroyOnLoad(this.gameObject);
     }
 
@@ -24,12 +26,5 @@ public class PhotoStorage : MonoBehaviour
         {
             addPhoto(photos[photos.Count - 1]);
         }*/
-    }
-
-    void addPhoto(Texture2D texture)
-    {
-        GameObject p = GameObject.Instantiate(photoPrefab);
-        p.GetComponent<MeshRenderer>().material.mainTexture = texture;
-        newPhoto = false;
     }
 }

@@ -13,6 +13,10 @@ public class ScreenShotter : MonoBehaviour
     int height = Screen.height;
     int offsetX = 0;
     int offsetY = 0;
+    float horizFov = 60;
+    float vertFov = 60;
+
+    public int raycastDetail = 10;
 
     public float aspectRatio = 1f/1f; //width / height
 
@@ -32,13 +36,50 @@ public class ScreenShotter : MonoBehaviour
             //screen is too narrow
             offsetY = Mathf.FloorToInt((height - width * (1f / aspectRatio)) / 2);
             height = Mathf.FloorToInt(width * (1f / aspectRatio));
+            float vertRadians = Camera.main.fieldOfView * Mathf.Deg2Rad;
+            float vertCrop = (float)height / (float)Screen.height;
+            //recalculate vertical fov
+            vertFov = Mathf.Rad2Deg * 2 * Mathf.Atan(Mathf.Tan(vertRadians / 2) * vertCrop);
         }
+        //calculate horizontal fov
+        float radHFov = 2 * Mathf.Atan(Mathf.Tan((vertFov * Mathf.Deg2Rad) / 2) * aspectRatio);
+        horizFov = Mathf.Rad2Deg * radHFov;
+        Debug.Log("Vert " + vertFov + " Horiz " + horizFov);
     }
 
     void LateUpdate()
     {
         if (Input.GetButtonDown("Fire1"))
+        {
+            //save image
             StartCoroutine(ScreenshotEncode());
+
+            //save data
+            PhotoInfo photoInfo = new PhotoInfo(raycastDetail * raycastDetail);
+            //cast rays
+            for(int i = 0; i < raycastDetail; i++)
+            {
+                float xAngle = vertFov * (.5f - (i + .5f) / (float) raycastDetail);
+                for(int j = 0; j < raycastDetail; j++)
+                {
+                    float yAngle = horizFov * (.5f - (j + .5f) / (float)raycastDetail);
+                    RaycastHit rayHit;
+                    Transform mCam = Camera.main.transform;
+                    Vector3 angle = mCam.rotation * Quaternion.Euler(xAngle, yAngle, 0) * Vector3.forward;
+                    Ray ray = new Ray(mCam.position, angle);
+                    if(Physics.Raycast(ray, out rayHit)) {
+                        PipeInfo pipe = rayHit.transform.GetComponent<PipeInfo>();
+                        if (pipe != null)
+                        {
+                            photoInfo.pipeDetection[i * raycastDetail + j] = pipe;
+                            //GameObject.CreatePrimitive(PrimitiveType.Sphere).transform.position = rayHit.point;//Debug spheres
+                        }
+                    } 
+                }
+            }
+            storage.infos.Add(photoInfo);
+            Debug.Log("pipes: " + photoInfo.countPipes() + "" + " density: " + photoInfo.pipeDensity());
+        }
     }
 
     IEnumerator ScreenshotEncode()
@@ -75,6 +116,5 @@ public class ScreenShotter : MonoBehaviour
 
         //Release memory 
         //DestroyObject(texture); just kidding
-        storage.newPhoto = true;
     }
 }
