@@ -1,10 +1,15 @@
 using UnityEngine;
 
-public class PipeInfo : MonoBehaviour
+public class PipeInfoHolder : MonoBehaviour
 {
-    public int pipeID = 0;
-    public Color flangeColor = Color.black;
-    public Color bodyColor = Color.white;
-    public float scale = 1;
-    public float length = 1;
+    public PipeInfo info;
+}
+
+public class PipeInfo
+{
+    public int pipeID;
+    public Color flangeColor;
+    public Color bodyColor;
+    public float scale;
+    public float length;
 }

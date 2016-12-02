@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 public class ClassMenu : MonoBehaviour
 {
@@ -10,10 +11,21 @@ public class ClassMenu : MonoBehaviour
     public float photoWidth = 200;
     public float photoHeight = 200;
 
+    public GameObject tutorialText;
+
     bool pinning = false;
     bool mouseOver = false;
 
+    float cursorFadeTimer = 0;
+
     Photograph grabbedPhoto;
+
+    List<Photograph> photosToGrade;
+
+    void Start()
+    {
+        photosToGrade = new List<Photograph>();
+    }
 
     void Update()
     {
@@ -35,10 +47,12 @@ public class ClassMenu : MonoBehaviour
                         grabbedPhoto.transform.rotation = photo.transform.rotation;
                         grabbedPhoto.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
                         grabbedPhoto.shrink();
+                        photosToGrade.Remove(grabbedPhoto);
                     }
                     grabbedPhoto = photo;
                     grabbedPhoto.transform.position = new Vector3(0, -10, 0);
                 }
+                photosToGrade.Remove(grabbedPhoto);
             } else if(grabbedPhoto != null && Input.GetButtonDown("Fire1"))
             {
                 grabbedPhoto.transform.position = rayHit.point + rayHit.normal * .05f;
@@ -47,13 +61,26 @@ public class ClassMenu : MonoBehaviour
                 {
                     grabbedPhoto.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
                     grabbedPhoto.grow();
+                    if (rayHit.transform.name == "Grading Wall")
+                    {
+                        photosToGrade.Add(grabbedPhoto);
+                    }
                 } else
                 {
                     grabbedPhoto.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
                     grabbedPhoto.shrink();
+                    photosToGrade.Remove(grabbedPhoto);
                 }
+
                 grabbedPhoto = null;
             }
+        }
+        if(photosToGrade.Count == 3)
+        {
+            tutorialText.SetActive(false);
+        } else
+        {
+            tutorialText.SetActive(true);
         }
     }
 

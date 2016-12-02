@@ -87,12 +87,13 @@ public class PipeMaker : MonoBehaviour {
             pipe.GetComponent<MeshFilter>().mesh = makePipe(len, tubeCol, flangeCol);
             pipe.transform.rotation = pipeRot;
             //info
-            PipeInfo info = pipe.AddComponent<PipeInfo>();
+            PipeInfo info = new PipeInfo();
             info.pipeID = pipeIDCounter;
             info.flangeColor = flangeCol;
             info.bodyColor = tubeCol;
             info.scale = scale;
             info.length = len;
+            pipe.AddComponent<PipeInfoHolder>().info = info;
             //don't generate a joint on the last segment
             if (j != iterations - 1)
             {
@@ -112,12 +113,13 @@ public class PipeMaker : MonoBehaviour {
                     coll.convex = true;
                 }
                 //info
-                PipeInfo jInfo = joint.AddComponent<PipeInfo>();
+                PipeInfo jInfo = new PipeInfo();
                 jInfo.pipeID = pipeIDCounter;
                 jInfo.flangeColor = flangeCol;
                 jInfo.bodyColor = tubeCol;
                 jInfo.scale = scale;
                 jInfo.length = JOINTSIZE;
+                joint.AddComponent<PipeInfoHolder>().info = jInfo;
             }
         }
         pipeParent.localScale = new Vector3(scale, scale, scale);

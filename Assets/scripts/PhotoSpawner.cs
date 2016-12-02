@@ -14,6 +14,7 @@ public class PhotoSpawner : MonoBehaviour
     public void Start()
     {
         photos = GameObject.FindObjectOfType<PhotoStorage>();
+        photos.transferTextures();
 
         int count = 0;
         int layer = 0;
@@ -29,6 +30,7 @@ public class PhotoSpawner : MonoBehaviour
                 count = 0;
                 layer++;
             }
+            p.GetComponent<Photograph>().info = photos.infos[i];
         }
     }
 }

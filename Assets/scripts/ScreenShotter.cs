@@ -68,10 +68,10 @@ public class ScreenShotter : MonoBehaviour
                     Vector3 angle = mCam.rotation * Quaternion.Euler(xAngle, yAngle, 0) * Vector3.forward;
                     Ray ray = new Ray(mCam.position, angle);
                     if(Physics.Raycast(ray, out rayHit)) {
-                        PipeInfo pipe = rayHit.transform.GetComponent<PipeInfo>();
+                        PipeInfoHolder pipe = rayHit.transform.GetComponent<PipeInfoHolder>();
                         if (pipe != null)
                         {
-                            photoInfo.pipeDetection[i * raycastDetail + j] = pipe;
+                            photoInfo.pipeDetection[i * raycastDetail + j] = pipe.info;
                             //GameObject.CreatePrimitive(PrimitiveType.Sphere).transform.position = rayHit.point;//Debug spheres
                         }
                     } 

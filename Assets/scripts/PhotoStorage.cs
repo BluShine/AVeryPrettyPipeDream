@@ -13,11 +13,19 @@ public class PhotoStorage : MonoBehaviour
         {
             photos = new List<Texture2D>();
         }
-        if(infos == null)
+        if (infos == null)
         {
             infos = new List<PhotoInfo>();
         }
         DontDestroyOnLoad(this.gameObject);
+    }
+
+    public void transferTextures()
+    {
+        for (int i = 0; i < infos.Count; i++)
+        {
+            infos[i].texture = photos[i];
+        }
     }
 
     public void Update()
