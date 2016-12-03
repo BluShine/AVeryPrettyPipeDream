@@ -3,6 +3,8 @@ using System.Collections.Generic;
 
 public class ClassMenu : MonoBehaviour
 {
+    public static ClassMenu instance;
+
     public Texture2D pinTexture;
     public Texture2D rectTexture;
 
@@ -20,10 +22,12 @@ public class ClassMenu : MonoBehaviour
 
     Photograph grabbedPhoto;
 
-    List<Photograph> photosToGrade;
+    [HideInInspector]
+    public List<Photograph> photosToGrade;
 
     void Start()
     {
+        instance = this;
         photosToGrade = new List<Photograph>();
     }
 
@@ -36,6 +40,7 @@ public class ClassMenu : MonoBehaviour
         {
             Debug.DrawLine(rayHit.point, transform.position);
             Photograph photo = rayHit.collider.gameObject.GetComponent<Photograph>();
+            Grader grader = rayHit.collider.gameObject.GetComponentInParent<Grader>();
             if (photo != null)
             {
                 mouseOver = true;
@@ -53,7 +58,15 @@ public class ClassMenu : MonoBehaviour
                     grabbedPhoto.transform.position = new Vector3(0, -10, 0);
                 }
                 photosToGrade.Remove(grabbedPhoto);
-            } else if(grabbedPhoto != null && Input.GetButtonDown("Fire1"))
+            } else if (grader != null)
+            {
+                if(Input.GetButtonDown("Fire1"))
+                {
+                    grader.Click();
+                }
+                grader.talk();
+            }
+            else if(grabbedPhoto != null && Input.GetButtonDown("Fire1"))
             {
                 grabbedPhoto.transform.position = rayHit.point + rayHit.normal * .05f;
                 grabbedPhoto.transform.rotation = Quaternion.LookRotation(-rayHit.normal, Vector3.up);
@@ -103,7 +116,18 @@ public class ClassMenu : MonoBehaviour
         else if (mouseOver)
         {
             drawCrosshair(rectTexture, 32, 32);
+        } else 
+        {
+            if(GetComponent<Rigidbody>().velocity.magnitude > 0  || 
+                Input.GetAxis("Mouse X") != 0 || Input.GetAxis("Mouse Y") != 0)
+            {
+                cursorFadeTimer = 3;
+            }
+            if (cursorFadeTimer > 0) {
+                drawCrosshair(rectTexture, 32, 32);
+            }
         }
+        cursorFadeTimer = Mathf.Max(0, cursorFadeTimer - Time.deltaTime);
     }
 
     void drawCrosshair(Texture2D crosshairTexture, float width, float height)
