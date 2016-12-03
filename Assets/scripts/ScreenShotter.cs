@@ -22,8 +22,14 @@ public class ScreenShotter : MonoBehaviour
 
     public PhotoStorage storage;
 
+    DreamMenu dMenu;
+
+    public GameObject shutterAnim;
+    public AudioSource shutterSound;
+
     public void Start()
     {
+        dMenu = FindObjectOfType<DreamMenu>();
         width = Screen.width;
         height = Screen.height;
         if(width > height * aspectRatio)
@@ -51,6 +57,14 @@ public class ScreenShotter : MonoBehaviour
     {
         if (Input.GetButtonDown("Fire1"))
         {
+            //disable text
+            dMenu.hintText.enabled = false;
+            dMenu.textFade = 0;
+            dMenu.hintTimer = 0;
+
+            //play sound
+            shutterSound.Play();
+
             //save image
             StartCoroutine(ScreenshotEncode());
 
@@ -116,5 +130,9 @@ public class ScreenShotter : MonoBehaviour
 
         //Release memory 
         //DestroyObject(texture); just kidding
+
+        //play shutter animation
+        shutterAnim.SetActive(true);
+        shutterAnim.GetComponent<Animator>().SetTrigger("click");
     }
 }

@@ -3,6 +3,8 @@ using System.Collections.Generic;
 
 public class Criteria : MonoBehaviour
 {
+    public string gradeName = "Redness";
+
     public CritType type = CritType.color;
     public bool invertCrit = false; // if true, flip the result
     public float threashold = .5f;
