@@ -21,6 +21,11 @@ public class Grader : MonoBehaviour
 
     public GameObject star;
 
+    bool graded = false;
+
+    [HideInInspector]
+    public List<Bed> beds = new List<Bed>();
+
     public void Start()
     {
         writer = GetComponentInChildren<Typewriter>();
@@ -31,6 +36,10 @@ public class Grader : MonoBehaviour
 
     public void Click()
     {
+        if(graded)
+        {
+            return;
+        }
         if (ClassMenu.instance.photosToGrade.Count == 3)
         {
             string finalGrade = "GRADES:\n";
@@ -47,6 +56,7 @@ public class Grader : MonoBehaviour
                 //place a star on the favorite
                 Transform favStar = GameObject.Instantiate(star).transform;
                 favStar.transform.position = ClassMenu.instance.photosToGrade[fav].transform.position + new Vector3(.05f, -.85f + Random.Range(0, .1f), Random.Range(-.65f, .65f));
+                favStar.transform.parent = ClassMenu.instance.photosToGrade[fav].transform;
             }
             writer.SetText(totalFeedback);
             writer.Stop();
@@ -54,6 +64,11 @@ public class Grader : MonoBehaviour
             avgGrade = avgGrade / (float)criterias.Length;
             finalGrade += "Overall- " + (Mathf.Floor(avgGrade * 1000) / 10);
             gradeText.text = finalGrade;
+            graded = true;
+            foreach (Bed b in beds)
+            {
+                b.gameObject.SetActive(true);
+            }
         }
         else {
             writer.SetText(wrongNumberOfPhotos);

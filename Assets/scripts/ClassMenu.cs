@@ -41,6 +41,11 @@ public class ClassMenu : MonoBehaviour
             Debug.DrawLine(rayHit.point, transform.position);
             Photograph photo = rayHit.collider.gameObject.GetComponent<Photograph>();
             Grader grader = rayHit.collider.gameObject.GetComponentInParent<Grader>();
+            Bed bed = rayHit.collider.gameObject.GetComponent<Bed>();
+            if(bed == null)
+            {
+                bed = rayHit.collider.gameObject.GetComponentInParent<Bed>();
+            }
             if (photo != null)
             {
                 mouseOver = true;
@@ -65,6 +70,9 @@ public class ClassMenu : MonoBehaviour
                     grader.Click();
                 }
                 grader.talk();
+            } else if (bed != null && Input.GetButtonDown("Fire1"))
+            {
+                bed.Dream();
             }
             else if(grabbedPhoto != null && Input.GetButtonDown("Fire1"))
             {
