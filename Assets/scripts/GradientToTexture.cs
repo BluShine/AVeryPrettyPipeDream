@@ -52,7 +52,7 @@ public class GradientToTexture : MonoBehaviour
         }
         texture.SetPixels(colors);
         texture.wrapMode = TextureWrapMode.Clamp;
-        texture.alphaIsTransparency = true;
+        //texture.alphaIsTransparency = true;
         return texture;
     }
 }

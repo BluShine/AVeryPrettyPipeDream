@@ -29,6 +29,9 @@ public class Bed : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
+        //randomize bed
+        weather = (Weather)Random.Range(0, 5);
+        //set colors
         pillow = transform.Find("pillow").gameObject;
         headboard = transform.Find("headboard").gameObject;
         setColors();
