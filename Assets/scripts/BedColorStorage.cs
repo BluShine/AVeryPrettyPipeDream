@@ -8,4 +8,7 @@ public class BedColorStorage : MonoBehaviour {
     public Color[] weatherDiff;
 
     public Color[] worldDiff;
+
+    public string[] worlds;
+    public GameObject[] weathers;
 }

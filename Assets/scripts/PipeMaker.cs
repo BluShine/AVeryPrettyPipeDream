@@ -11,6 +11,8 @@ public class PipeMaker : MonoBehaviour {
 
     public GameObject pipeSegment;
 
+    public Material pipeMat;
+
     public int numPipes = 10;
     public float pipeLength = 10;
     public int pipeIterations = 10;
@@ -25,12 +27,30 @@ public class PipeMaker : MonoBehaviour {
 
     public Vector3 pLimits = new Vector3(100, 100, 100);
 
+    public enum ColorMode{ rainbow, monochrome, gradient }
+    public ColorMode colorMode = ColorMode.rainbow;
+    public Color pipeColor;
+    public Gradient pipeGradient;
+
+    public enum FlangeMode { normal, different, same, inverse }
+    public FlangeMode flangeMode = FlangeMode.normal;
+    public ColorMode flangeColorMode = ColorMode.rainbow;
+    public Color flangeColor;
+    public Gradient flangeGradient;
+
     public bool generateColliders = false;
 
     int pipeIDCounter = 0;
 
 	// Use this for initialization
 	void Start () {
+        Weather w = FindObjectOfType<Weather>();
+        if(w != null)
+        {
+            pipeMat.SetColor("_RimColor", w.rimLight);
+            pipeMat.SetColor("_SpecColor", w.specLight);
+            pipeMat.SetTexture("_ColorRamp", w.GetComponent<GradientToTexture>().makeTexture());
+        }
         generatePipes();
         generateOuterPipeLayers();
     }
@@ -60,8 +80,48 @@ public class PipeMaker : MonoBehaviour {
         {
             Vector3 pos = Random.onUnitSphere * Random.Range(inner, outer);
             Quaternion rot = Quaternion.FromToRotation(Vector3.up, pos.normalized) * Quaternion.Euler(Random.Range(-90, 90), Random.Range(-90, 90), Random.Range(-90, 90));
-            makePipe(randBrightColor(), randBrightColor(), pos, rot, layerParent, scale, outerLayerIterations);
+            Color bodyCol = getBodyColor();
+            makePipe(bodyCol, getFlangeColor(bodyCol), pos, rot, layerParent, scale, outerLayerIterations);
         }
+    }
+
+    Color getBodyColor()
+    {
+        switch (colorMode)
+        {
+            case ColorMode.rainbow:
+                return randBrightColor();
+            case ColorMode.monochrome:
+                return pipeColor;
+            case ColorMode.gradient:
+                return pipeGradient.Evaluate(Random.value);
+        }
+        return Color.white;
+    }
+
+    Color getFlangeColor(Color bColor)
+    {
+        switch(flangeMode)
+        {
+            case FlangeMode.normal:
+                return getBodyColor();
+            case FlangeMode.same:
+                return bColor;
+            case FlangeMode.inverse:
+                return new Color(1 - bColor.r, 1 - bColor.g, 1 - bColor.b);
+            case FlangeMode.different:
+                switch(flangeColorMode)
+                {
+                    case ColorMode.rainbow:
+                        return randBrightColor();
+                    case ColorMode.monochrome:
+                        return flangeColor;
+                    case ColorMode.gradient:
+                        return flangeGradient.Evaluate(Random.value);
+                }
+                return Color.white;
+        }
+        return Color.white;
     }
 
     void makePipe(Color tubeCol, Color flangeCol, Vector3 pipePos, Quaternion pipeRot, Transform parent, float scale,
@@ -74,6 +134,7 @@ public class PipeMaker : MonoBehaviour {
         for (int j = 0; j < iterations; j++)
         {
             GameObject pipe = GameObject.Instantiate(pipeSegment);
+            pipe.GetComponent<MeshRenderer>().material = pipeMat;
             pipe.transform.parent = pipeParent;
             pipe.transform.position = pipePos;
             float len = Random.Range(1, pipeLength);
@@ -101,6 +162,7 @@ public class PipeMaker : MonoBehaviour {
                 pipePos = pipePos + pipeRot * transform.up * (len + JOINTSIZE);
                 pipeRot = pipeRot * Quaternion.Euler(90, 0, Random.Range(0, 360));
                 GameObject joint = GameObject.Instantiate(pipeSegment);
+                joint.GetComponent<MeshRenderer>().material = pipeMat;
                 joint.transform.parent = pipe.transform;
                 joint.transform.position = pipePos + pipeRot * new Vector3(0, JOINTSIZE, JOINTSIZE);
                 joint.GetComponent<MeshFilter>().mesh = makeJoint(tubeCol, tubeCol);
@@ -136,7 +198,8 @@ public class PipeMaker : MonoBehaviour {
             Vector3 pos = new Vector3(Random.Range(-pLimits.x, pLimits.x),
                 Random.Range(-pLimits.y, pLimits.y), Random.Range(-pLimits.z, pLimits.z));
             Quaternion rot = Random.rotation;
-            makePipe(randBrightColor(), randBrightColor(), pos, rot, groupParent, 1, pipeIterations);
+            Color bodyCol = getBodyColor();
+            makePipe(bodyCol, getFlangeColor(bodyCol), pos, rot, groupParent, 1, pipeIterations);
         }
     }
 

@@ -25,8 +25,19 @@ namespace UnityStandardAssets.ImageEffects
 
         public Shader fogShader = null;
 		private Material fogMaterial = null;
-		
-		[SerializeField] Texture2D _fogColorTexture = null;
+
+        public GradientToTexture fogGradient;
+		public Texture2D _fogColorTexture = null;
+
+        public void Start()
+        {
+            applyGradient();
+        }
+
+        public void applyGradient()
+        {
+            _fogColorTexture = fogGradient.makeTexture();
+        }
 		
 		public override bool CheckResources ()
 		{
@@ -108,6 +119,10 @@ namespace UnityStandardAssets.ImageEffects
 			fogMaterial.SetVector ("_SceneFogParams", sceneParams);
 			fogMaterial.SetVector ("_SceneFogMode", new Vector4((int)sceneMode, useRadialDistance ? 1 : 0, 0, 0));
 			
+            if(_fogColorTexture == null)
+            {
+                applyGradient();
+            }
 			fogMaterial.SetTexture ( "_FogColorTex", _fogColorTexture );
 			
 			int pass = 0;

@@ -57,9 +57,10 @@ public class Bed : MonoBehaviour {
     public void Dream()
     {
         //throw out the old roll of film
-        Destroy(FindObjectOfType<PhotoStorage>());
+        Destroy(FindObjectOfType<PhotoStorage>().gameObject);
         Debug.Log("Start dream " + weather.ToString() + " " + world.ToString());
-        SceneManager.LoadScene("Dream");
+        DontDestroyOnLoad(Instantiate(colors.weathers[(int)weather]));
+        SceneManager.LoadScene(colors.worlds[(int)world]);
     }
 
     void setColors()

@@ -26,8 +26,17 @@ public class DreamMenu : MonoBehaviour
 
     public void Start()
     {
+        Weather weather = FindObjectOfType<Weather>();
+        if(weather != null)
+        {
+            //set fog gradient
+            GlobalFog f = FindObjectOfType<GlobalFog>();
+            f.fogGradient = weather.transform.FindChild("FogGradient").GetComponent<GradientToTexture>();
+            f.applyGradient();
+            
+        }
         storage = FindObjectOfType<PhotoStorage>();
-        fog = GetComponent<GlobalFog>();
+        fog = FindObjectOfType<GlobalFog>();
         fogDefault = fog.endDistance;
         fog.endDistance = 0;
     }
@@ -38,6 +47,11 @@ public class DreamMenu : MonoBehaviour
         {
             if (storage.photos.Count >= 3)
             {
+                Weather weather = FindObjectOfType<Weather>();
+                if(weather != null)
+                {
+                    Destroy(weather.gameObject);
+                }
                 SceneManager.LoadScene("Classroom");
             } else {
                 hintTimer = 0;
@@ -77,7 +91,10 @@ public class DreamMenu : MonoBehaviour
                 }
             } else
             {
-                titleScreen.gameObject.SetActive(false);
+                if (titleScreen != null)
+                {
+                    titleScreen.gameObject.SetActive(false);
+                }
             }
         }
 
