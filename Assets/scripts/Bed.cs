@@ -30,6 +30,7 @@ public class Bed : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
         //randomize bed
+        world = (World)Random.Range(0, 7);
         weather = (Weather)Random.Range(0, 5);
         //set colors
         pillow = transform.Find("pillow").gameObject;
