@@ -1,0 +1,152 @@
+fileFormatVersion: 2
+guid: 75a4eba3ae5ed854da047a235ca5a7fb
+timeCreated: 1480885298
+licenseType: Free
+ModelImporter:
+  serializedVersion: 19
+  fileIDToRecycleName:
+    100000: Armature
+    100002: BottomLip
+    100004: //RootNode
+    100006: Eyebrow_L
+    100008: Eyebrow_R
+    100010: Fingers1_L
+    100012: Fingers1_R
+    100014: Fingers2_L
+    100016: Fingers2_R
+    100018: Foot_L
+    100020: Foot_R
+    100022: Gobbler
+    100024: Gobbler-Mirror
+    100026: Hand_L
+    100028: Hand_R
+    100030: Head
+    100032: LegControl_L
+    100034: LegControl_R
+    100036: LowerArm_L
+    100038: LowerArm_R
+    100040: LowerLeg_L
+    100042: LowerLeg_R
+    100044: Thumb1_L
+    100046: Thumb1_R
+    100048: Thumb2_L
+    100050: Thumb2_R
+    100052: Toes_L
+    100054: Toes_R
+    100056: TopLip
+    100058: UpperArm_L
+    100060: UpperArm_R
+    100062: UpperLeg_L
+    100064: UpperLeg_R
+    400000: Armature
+    400002: BottomLip
+    400004: //RootNode
+    400006: Eyebrow_L
+    400008: Eyebrow_R
+    400010: Fingers1_L
+    400012: Fingers1_R
+    400014: Fingers2_L
+    400016: Fingers2_R
+    400018: Foot_L
+    400020: Foot_R
+    400022: Gobbler
+    400024: Gobbler-Mirror
+    400026: Hand_L
+    400028: Hand_R
+    400030: Head
+    400032: LegControl_L
+    400034: LegControl_R
+    400036: LowerArm_L
+    400038: LowerArm_R
+    400040: LowerLeg_L
+    400042: LowerLeg_R
+    400044: Thumb1_L
+    400046: Thumb1_R
+    400048: Thumb2_L
+    400050: Thumb2_R
+    400052: Toes_L
+    400054: Toes_R
+    400056: TopLip
+    400058: UpperArm_L
+    400060: UpperArm_R
+    400062: UpperLeg_L
+    400064: UpperLeg_R
+    2300000: Gobbler-Mirror
+    3300000: Gobbler-Mirror
+    4300000: Gobbler
+    4300002: Gobbler-Mirror
+    7400000: Default Take
+    7400002: FallOver
+    7400004: IdlePose
+    7400006: Munch
+    7400008: PillGrabLeft
+    7400010: PillGrabRight
+    7400012: TitleScreenPose
+    7400014: WalkCycle01
+    7400016: WalkCycle02
+    9500000: //RootNode
+    13700000: Gobbler
+  materials:
+    importMaterials: 1
+    materialName: 0
+    materialSearch: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    clipAnimations: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    importBlendShapes: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    rootMotionBoneName: 
+    hasTranslationDoF: 0
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 2
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

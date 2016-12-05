@@ -27,6 +27,8 @@ public class Bed : MonoBehaviour {
     float riseTime = 3;
     static float RISESPEED = 2;
 
+    bool started = false;
+
 	// Use this for initialization
 	void Start () {
         //randomize bed
@@ -40,11 +42,16 @@ public class Bed : MonoBehaviour {
         transform.position = transform.position + new Vector3(0, -RISEAMOUNT, 0);
         riseTime = RISESPEED;
         FindObjectOfType<Grader>().beds.Add(this);
-        gameObject.SetActive(false);
 	}
 	
 	// Update is called once per frame
 	void Update () {
+        if(!started)
+        {
+            started = true;
+            gameObject.SetActive(false);
+            return;
+        }
         //setColors();
         if(riseTime > 0)
         {

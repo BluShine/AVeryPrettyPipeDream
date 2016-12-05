@@ -3,9 +3,12 @@ using System.Collections.Generic;
 
 public class Grader : MonoBehaviour
 {
+    public string bio = "A tough critic.";
     public string greeting = "Hi.";
 
     static string wrongNumberOfPhotos = "You need to pin exactly 3 photos on the wall.";
+    static string TUTORIALGREET = "Click me when your work is ready.";
+    static bool tutorialed = false;
 
     [HideInInspector]
     public Criteria[] criterias;
@@ -28,8 +31,15 @@ public class Grader : MonoBehaviour
 
     public void Start()
     {
+        gradeText = GameObject.Find("Grade Text").GetComponent<TextMesh>();
         writer = GetComponentInChildren<Typewriter>();
         writer.SetText(greeting);
+        Debug.Log("tut " + tutorialed);
+        if (!tutorialed)
+        {
+            tutorialed = true;
+            writer.SetText(TUTORIALGREET);
+        }
         disableBubble();
         criterias = GetComponentsInChildren<Criteria>();
     }
@@ -65,10 +75,13 @@ public class Grader : MonoBehaviour
             finalGrade += "Overall- " + (Mathf.Floor(avgGrade * 1000) / 10);
             gradeText.text = finalGrade;
             graded = true;
+            //raise the beds
             foreach (Bed b in beds)
             {
                 b.gameObject.SetActive(true);
             }
+            //hint about the next grader
+            GameObject.Find("Next Text").GetComponent<MeshRenderer>().enabled = true;
         }
         else {
             writer.SetText(wrongNumberOfPhotos);
