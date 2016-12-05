@@ -34,14 +34,13 @@ public class Grader : MonoBehaviour
         gradeText = GameObject.Find("Grade Text").GetComponent<TextMesh>();
         writer = GetComponentInChildren<Typewriter>();
         writer.SetText(greeting);
-        Debug.Log("tut " + tutorialed);
-        if (!tutorialed)
-        {
-            tutorialed = true;
-            writer.SetText(TUTORIALGREET);
-        }
         disableBubble();
         criterias = GetComponentsInChildren<Criteria>();
+    }
+
+    public void Tutorial()
+    {
+        greeting = TUTORIALGREET;
     }
 
     public void Click()
@@ -59,14 +58,18 @@ public class Grader : MonoBehaviour
             {
                 string feedback;
                 int fav;
-                float grade = c.gradePhotos(ClassMenu.instance.photosToGrade, out feedback, out fav);
+                bool good;
+                float grade = c.gradePhotos(ClassMenu.instance.photosToGrade, out feedback, out fav, out good);
                 totalFeedback += feedback + " ";
                 finalGrade += c.gradeName + "- " + (Mathf.Floor(grade * 1000) / 10) + "\n";
                 avgGrade += grade;
                 //place a star on the favorite
-                Transform favStar = GameObject.Instantiate(star).transform;
-                favStar.transform.position = ClassMenu.instance.photosToGrade[fav].transform.position + new Vector3(.05f, -.85f + Random.Range(0, .1f), Random.Range(-.65f, .65f));
-                favStar.transform.parent = ClassMenu.instance.photosToGrade[fav].transform;
+                if (good)
+                {
+                    Transform favStar = GameObject.Instantiate(star).transform;
+                    favStar.transform.position = ClassMenu.instance.photosToGrade[fav].transform.position + new Vector3(.05f, -.85f + Random.Range(0, .1f), Random.Range(-.65f, .65f));
+                    favStar.transform.parent = ClassMenu.instance.photosToGrade[fav].transform;
+                }
             }
             writer.SetText(totalFeedback);
             writer.Stop();

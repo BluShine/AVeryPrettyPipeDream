@@ -19,7 +19,7 @@ public class Criteria : MonoBehaviour
         color, density, count
     }
 
-    public float gradePhotos(List<Photograph> photos, out string feedback, out int favorite)
+    public float gradePhotos(List<Photograph> photos, out string feedback, out int favorite, out bool good)
     {
         float result = 0;
         favorite = 0;
@@ -51,9 +51,11 @@ public class Criteria : MonoBehaviour
         if(result > threashold)
         {
             feedback = positiveFeedback;
+            good = true;
         } else
         {
             feedback = negativeFeedback;
+            good = false;
         }
         
         return result;

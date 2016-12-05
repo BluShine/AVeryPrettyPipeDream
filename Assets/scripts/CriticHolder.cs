@@ -7,6 +7,8 @@ public class CriticHolder : MonoBehaviour {
 
     public int nextCritic;
 
+    public bool firstCritic = true;
+
 	// Use this for initialization
 	void Start () {
 	    foreach(CriticHolder c in FindObjectsOfType<CriticHolder>())
@@ -24,7 +26,12 @@ public class CriticHolder : MonoBehaviour {
 
     public void spawnCritic()
     {
-        GameObject.Instantiate(critics[nextCritic]);
+        Grader g = Instantiate(critics[nextCritic]).GetComponent<Grader>();
+        if (firstCritic)
+        {
+            g.Tutorial();
+            firstCritic = false;
+        }
         int newCrit = nextCritic;
         while(newCrit == nextCritic && critics.Count > 1)
         {

@@ -53,8 +53,8 @@ public class Typewriter : MonoBehaviour {
 	bool waitingForExternalInput;
 	
 	public void Start() {
-		textSections = new string[1 + additionalTextSections.Length];
-        textSections[0] = initialText;
+		//textSections = new string[1 + additionalTextSections.Length];
+        //textSections[0] = initialText;
 		
 		System.Array.Copy(additionalTextSections, 0, textSections, 1, additionalTextSections.Length);
 		
