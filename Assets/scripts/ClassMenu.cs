@@ -15,6 +15,9 @@ public class ClassMenu : MonoBehaviour
 
     public GameObject tutorialText;
 
+    public AudioSource grabSound;
+    public AudioSource pinSound;
+
     bool pinning = false;
     bool mouseOver = false;
 
@@ -61,6 +64,8 @@ public class ClassMenu : MonoBehaviour
                     }
                     grabbedPhoto = photo;
                     grabbedPhoto.transform.position = new Vector3(0, -10, 0);
+                    grabSound.pitch = Random.Range(0.75f, 2f);
+                    grabSound.Play();
                 }
                 photosToGrade.Remove(grabbedPhoto);
             } else if (grader != null)
@@ -92,7 +97,8 @@ public class ClassMenu : MonoBehaviour
                     grabbedPhoto.shrink();
                     photosToGrade.Remove(grabbedPhoto);
                 }
-
+                pinSound.pitch = Random.Range(.75f, 2f);
+                pinSound.Play();
                 grabbedPhoto = null;
             }
         }
