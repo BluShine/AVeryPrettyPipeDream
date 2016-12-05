@@ -51,6 +51,9 @@ public class Typewriter : MonoBehaviour {
 	bool usingGUIText = true;
 	string[] textSections;
 	bool waitingForExternalInput;
+
+    public AudioSource typeSound;
+    public float audioShift = 1.125f;
 	
 	public void Start() {
 		//textSections = new string[1 + additionalTextSections.Length];
@@ -62,6 +65,18 @@ public class Typewriter : MonoBehaviour {
 			Write();
 		}
 	}
+
+    public void Update()
+    {
+        if(!finished && textMesh.GetComponent<MeshRenderer>().enabled == true)
+        {
+            if(!typeSound.isPlaying)
+            {
+                typeSound.pitch = Mathf.Pow(audioShift, (float)Random.Range(0, 4));
+                typeSound.Play();
+            }
+        }
+    }
 
     public void SetText(string text)
     {
