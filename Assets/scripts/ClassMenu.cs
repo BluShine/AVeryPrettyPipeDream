@@ -28,6 +28,12 @@ public class ClassMenu : MonoBehaviour
     [HideInInspector]
     public List<Photograph> photosToGrade;
 
+    float eyesTimer = 0;
+    bool eyesClosing = false;
+    Bed dreamBed;
+
+    public GameObject eyes;
+
     void Start()
     {
         instance = this;
@@ -36,6 +42,15 @@ public class ClassMenu : MonoBehaviour
 
     void Update()
     {
+        if(eyesClosing)
+        {
+            eyesTimer += Time.deltaTime;
+            if(eyesTimer >= 2)
+            {
+                dreamBed.Dream();
+            }
+            return;
+        }
         mouseOver = false;
         Ray ray = new Ray(transform.position, transform.forward);
         RaycastHit rayHit = new RaycastHit();
@@ -77,7 +92,11 @@ public class ClassMenu : MonoBehaviour
                 grader.talk();
             } else if (bed != null && Input.GetButtonDown("Fire1"))
             {
-                bed.Dream();
+                dreamBed = bed;
+                eyesClosing = true;
+                eyes.gameObject.SetActive(true);
+                eyes.GetComponent<Animator>().SetTrigger("close");
+                //bed.Dream();
             }
             else if(grabbedPhoto != null && Input.GetButtonDown("Fire1"))
             {

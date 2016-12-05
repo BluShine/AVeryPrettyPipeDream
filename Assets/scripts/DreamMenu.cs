@@ -24,6 +24,11 @@ public class DreamMenu : MonoBehaviour
 
     public Transform titleScreen;
 
+    float eyesTimer = 0;
+    bool eyesClosing = false;
+
+    public GameObject eyes;
+
     public void Start()
     {
         Weather weather = FindObjectOfType<Weather>();
@@ -44,16 +49,27 @@ public class DreamMenu : MonoBehaviour
 
     public void Update()
     {
-        if(Input.GetButtonDown("Submit"))
+        if(eyesClosing)
         {
-            if (storage.photos.Count >= 3)
+            eyesTimer += Time.deltaTime;
+            if (eyesTimer > 2)
             {
                 Weather weather = FindObjectOfType<Weather>();
-                if(weather != null)
+                if (weather != null)
                 {
                     Destroy(weather.gameObject);
                 }
                 SceneManager.LoadScene("Classroom");
+            }
+            return;
+        }
+        if(Input.GetButtonDown("Submit"))
+        {
+            if (storage.photos.Count >= 3)
+            {
+                eyesClosing = true;
+                eyes.SetActive(true);
+                eyes.GetComponent<Animator>().SetTrigger("close");
             } else {
                 hintTimer = 0;
                 textFade = TTIMER;
