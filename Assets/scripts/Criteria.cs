@@ -9,14 +9,14 @@ public class Criteria : MonoBehaviour
     public bool invertCrit = false; // if true, flip the result
     public float threashold = .5f;
     public Color color = Color.red;
-    public int amount = 50;
+    public float amount = 50;
 
     public string positiveFeedback = "Very red. I like it. ";
     public string negativeFeedback = "Try using more red. ";
 
     public enum CritType
     {
-        color, density, count
+        color, density, count, saturation, brightness, contrast, centerNoise, edgeNoise
     }
 
     public float gradePhotos(List<Photograph> photos, out string feedback, out int favorite, out bool good)
@@ -35,7 +35,22 @@ public class Criteria : MonoBehaviour
                     r = photos[i].info.pipeDensity();
                     break;
                 case CritType.count:
-                    r = (float)photos[i].info.countPipes() / (float)amount;
+                    r = (float)photos[i].info.countPipes() / amount;
+                    break;
+                case CritType.saturation:
+                    r = photos[i].info.averageSaturation();
+                    break;
+                case CritType.brightness:
+                    r = photos[i].info.averageBrightness();
+                    break;
+                case CritType.contrast:
+                    r = photos[i].info.contrast();
+                    break;
+                case CritType.edgeNoise:
+                    r = photos[i].info.edgeNoise(amount);
+                    break;
+                case CritType.centerNoise:
+                    r = photos[i].info.centerNoise(amount);
                     break;
             }
             if(r > result)

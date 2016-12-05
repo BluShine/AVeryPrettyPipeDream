@@ -76,4 +76,127 @@ public class PhotoInfo
         }
         return total;
     }
+
+    //return average saturation
+    public float averageSaturation()
+    {
+        float influence = 1f / (float)(SEARCHRES * SEARCHRES);
+        float total = 0;
+        for (int i = 0; i < SEARCHRES; i++)
+        {
+            for (int j = 0; j < SEARCHRES; j++)
+            {
+                Color n = texture.GetPixelBilinear(((float)i + .5f) / (float)SEARCHRES, ((float)j + .5f) / (float)SEARCHRES);
+                float nH;
+                float nS;
+                float nV;
+                Color.RGBToHSV(n, out nH, out nS, out nV);
+                total += influence * nS;
+            }
+        }
+        return total;
+    }
+
+    //return average brightness
+    public float averageBrightness()
+    {
+        float influence = 1f / (float)(SEARCHRES * SEARCHRES);
+        float total = 0;
+        for (int i = 0; i < SEARCHRES; i++)
+        {
+            for (int j = 0; j < SEARCHRES; j++)
+            {
+                Color n = texture.GetPixelBilinear(((float)i + .5f) / (float)SEARCHRES, ((float)j + .5f) / (float)SEARCHRES);
+                total += influence * n.grayscale;
+            }
+        }
+        return total;
+    }
+
+    //detect contrast by adding up all the "light" (>50% colors) and "dark" colors, and returning the minimum of those two.
+    //all gray = 0, all white = 0, half gray half white = 0, half black half white = 1
+    public float contrast()
+    {
+        float darkness = 0;
+        float lightness = 0;
+        float influence = 1f / (float)(SEARCHRES * SEARCHRES);
+        for (int i = 0; i < SEARCHRES; i++)
+        {
+            for (int j = 0; j < SEARCHRES; j++)
+            {
+                Color n = texture.GetPixelBilinear(((float)i + .5f) / (float)SEARCHRES, ((float)j + .5f) / (float)SEARCHRES);
+                if (n.grayscale < .5f)
+                {
+                    darkness += influence * n.grayscale * 2;
+                } else
+                {
+                    lightness += influence * (n.grayscale - .5f) * 2;
+                }
+            }
+        }
+        return Mathf.Min(darkness, lightness) * 2;
+    }
+
+    //detect noise in an area at the center of the screen
+    public float centerNoise(float area)
+    {
+        float influence = 1f / (float)(SEARCHRES * SEARCHRES);
+        float offset = 1f - area / 2f;
+        float contrastDistance = .1f;
+        float total = 0;
+        for (int i = 0; i < SEARCHRES; i++)
+        {
+            for (int j = 0; j < SEARCHRES; j++)
+            {
+                float x = ((float)i + .5f) / (float)SEARCHRES;
+                x = offset + x * area;
+                float y = ((float)j + .5f) / (float)SEARCHRES;
+                y = offset + x * area;
+                Color n = texture.GetPixelBilinear(x, y);
+                Color up = texture.GetPixelBilinear(x, y + contrastDistance);
+                Color down = texture.GetPixelBilinear(x, y - contrastDistance);
+                Color left = texture.GetPixelBilinear(x + contrastDistance, y);
+                Color right = texture.GetPixelBilinear(x - contrastDistance, y);
+                total += influence * Mathf.Max(rgbDiff(n, up), rgbDiff(n, down), rgbDiff(n, left), rgbDiff(n, right));
+            }
+        }
+        return total;
+    }
+
+    //detect noise in an area at the center of the screen
+    public float edgeNoise(float area)
+    {
+        float influence = 1f / (float)(SEARCHRES * SEARCHRES);
+        float offset = area + 1f - area / 2f;
+        float contrastDistance = .1f;
+        float total = 0;
+        int HALFRES = SEARCHRES / 2;
+        for (int i = 0; i < SEARCHRES; i++)
+        {
+            for (int j = 0; j < SEARCHRES; j++)
+            {
+                float x = ((float)i + .5f) / (float)SEARCHRES;
+                if (i > HALFRES)
+                {
+                    x += offset;
+                }
+                float y = ((float)j + .5f) / (float)SEARCHRES;
+                if (y > HALFRES) {
+                    y += offset;
+                }
+                Color n = texture.GetPixelBilinear(x, y);
+                Color up = texture.GetPixelBilinear(x, y + contrastDistance);
+                Color down = texture.GetPixelBilinear(x, y - contrastDistance);
+                Color left = texture.GetPixelBilinear(x + contrastDistance, y);
+                Color right = texture.GetPixelBilinear(x - contrastDistance, y);
+                total += influence * Mathf.Max(rgbDiff(n, up), rgbDiff(n, down), rgbDiff(n, left), rgbDiff(n, right));
+            }
+        }
+        return total;
+    }
+
+    private float rgbDiff(Color a, Color b)
+    {
+        return Mathf.Max(Mathf.Abs(a.r - b.r), Mathf.Abs(a.g - b.g), Mathf.Abs(a.b - b.b));
+    }
 }
